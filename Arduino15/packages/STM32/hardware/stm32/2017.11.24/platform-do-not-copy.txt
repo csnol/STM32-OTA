@@ -1,0 +1,9 @@
+# Please add below lines to the end of your platform.txt
+# Upload using STM32 OTA over HTTPServer added by CSNOL
+tools.stm32_ota.cmd=stm32_ota
+tools.stm32_ota.path.macosx={runtime.hardware.path}/tools/macosx
+tools.stm32_ota.path.linux={runtime.hardware.path}/tools/linux
+tools.stm32_ota.path.linux64={runtime.hardware.path}/tools/linux64    
+tools.stm32_ota.upload.params.verbose=-d
+tools.stm32_ota.upload.params.quiet=
+tools.stm32_ota.upload.pattern="{path}/{cmd}" {upload.IPAddress} "{build.path}/{build.project_name}.bin"

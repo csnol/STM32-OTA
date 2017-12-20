@@ -1,0 +1,7 @@
+# Please add below lines to the end of your $path/STM32F1/boards.txt
+# you can change 'BluePill' to you wanted for flash others STM32 serial MCUs
+# STM32 OTA uploader ---- added by CSNOL
+BluePill.menu.upload_method.httpMethod=STM32 OTA
+BluePill.menu.upload_method.httpMethod.upload.protocol=stm32_ota
+BluePill.menu.upload_method.httpMethod.upload.tool=stm32_ota
+BluePill.menu.upload_method.httpMethod.upload.IPAddress=http://192.168.0.66  # Change to your ESP8266 board's IPAddress
