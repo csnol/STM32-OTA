@@ -24,7 +24,8 @@
 ## Schematic
 
 #### 1. Use ESP-12E 
-<img src="./images/stm32-ota-esp8266.jpg" width="800">  
+<img src="./images/stm32-ota-esp8266.jpg" width="800">     
+
 #### 2. Use NODEMCU 
 <img src="./images/stm32-ota-nodemcu.jpg" width="800"> 
 
@@ -105,5 +106,5 @@
 ## LICENSE
 
 Copyright (C) 2017 by  [CS.NOL](https://github.com/csnol/STM32-OTA) . This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, but you have to keep below webserver code in your sketch for sharing.
->  Version 1.0 by \<a style=\"color:white\" href=\"https://github.com/csnol/STM32-OTA\"\>CSNOL 
+>  Version 1.0 by \<a style=\"color:white\" href=\"https://github.com/csnol/STM32-OTA\">CSNOL 
 
