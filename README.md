@@ -36,7 +36,7 @@
 
 ### 1st step -> Flash ESP8266 
 
-1. Download source-codes from [HERE](https://github.com/csnol/STM32-OTA-Arduino/tree/master/ESP8266-Src)
+1. Download source-codes from [HERE](https://github.com/csnol/STM32-OTA/tree/master/ESP8266-Src)
 2. Setup your WiFi and ESP8266 IPAddress to yours
 <img src="./images/ESP8266-setup.png" width="800"> 
 3. upload to ESP8266.   Don't know how to Flash ESP8266?  [HELP](https://github.com/esp8266/Arduino)  
