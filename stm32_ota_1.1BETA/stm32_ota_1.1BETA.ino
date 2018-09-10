@@ -1,40 +1,53 @@
 /*
-
-     Copyright (C) 2017  CS.NOL  https://github.com/csnol/STM32-OTA
-
-     This program is free software: you can redistribute it and/or modify
-     it under the terms of the GNU General Public License as published by
-     the Free Software Foundation, either version 3 of the License,
-     and You have to keep below webserver code
-     "<h2>Version 1.0 by <a style=\"color:white\" href=\"https://github.com/csnol/STM32-OTA\">CSNOL"
-     in your sketch.
-
-     This program is distributed in the hope that it will be useful,
-     but WITHOUT ANY WARRANTY; without even the implied warranty of
-     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-     GNU General Public License for more details.
-
-     You should have received a copy of the GNU General Public License
-     along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-    It is assumed that the STM32 MCU is connected to the following pins with NodeMCU or ESP8266/8285.
-    Tested and supported MCU : STM32F03xF/K/C/，F05xF/K/C,F10xx8/B
-
-    连接ESP8266模块和STM32系列MCU.    Connect ESP8266 to STM32 MCU
-
-    ESP8266/8285 Pin       STM32 MCU      NodeMCU Pin(ESP8266 based)
-    RXD                  	PA9             RXD
-    TXD                  	PA10            TXD
-    Pin4                 	BOOT0           D2
-    Pin5                 	RST             D1
-    Vcc                  	3.3V            3.3V
-    GND                  	GND             GND
-    En -> 10K -> 3.3V
-
-  --- It's a testing sketch. ----
-  1. add ESP8266 OTA function at 192.168.0.66:8266 port
-  2. add all STM32 MCU supported.
-  3. Useage:  192.168.0.66 on Web-Browser, click Flash ESP8266.  You can OTA update ESP8266/8285 on Arduino IDE.
+//
+//     Copyright (C) 2017  CS.NOL  https://github.com/csnol/STM32-OTA
+//
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License,
+//     and You have to keep below webserver code
+//     "<h2>Version 1.1 by <a style=\"color:white\" href=\"https://github.com/csnol/STM32-OTA\">CSNOL"
+//     in your sketch.
+//
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+//    It is assumed that the STM32 MCU is connected to the following pins with NodeMCU or ESP8266/8285.
+//    Tested and supported MCU : STM32F03xF/K/C/，F05xF/K/C,F10xx8/B, F105/107
+//
+//    连接ESP8266模块和STM32系列MCU.    Connect ESP8266 to STM32 MCU
+//
+//    ESP8266/8285 Pin       STM32 MCU      NodeMCU Pin(ESP8266 based)
+//    RXD                  	PA9             RXD
+//    TXD                  	PA10            TXD
+//    Pin4                 	BOOT0           D2
+//    Pin5                 	RST             D1
+//    Vcc                  	3.3V            3.3V
+//    GND                  	GND             GND
+//    En -> 10K -> 3.3V
+//
+//  //  New functions in STM32 OTA 1.1 Bata.    
+//   
+//  * You can OTA upload to ESP8266 based board at 192.168.0.66:8266 port.     
+//  * Support OTA all STM32 MCUs in WebBrowser or Arduino IDE.    
+//  * How to flash your ESP8266 sketch:  
+//   1. Open http://192.168.x.66 or http://stm32-ota.local on Web-Browser, click "Flash ESP8266".
+//   2. Select your Esp8266 board at Arduino IDE -> tools -> Board.
+//   3. Select "Esp8266-xxxx at 192.168.x.66" at Arduino IDE -> tools -> Port.
+//   4. Open Arduino IDE -> File -> ArduinoOTA->BasicOTA
+//   5. Add your codes in "BasicOTA.ino"
+//   6. Add below codes in setup() to reset STM32
+//        pinMode(NRST, OUTPUT) // ESP8266 pin connected to STM32 NRST
+//        digitalWrite(NRST, LOW);
+//        digitalWrite(LED, LOW);
+//        delay(50);
+//   
+//   Click "Upload" icon to programming your ESP8266.
 
 */
 
@@ -43,7 +56,7 @@
 #include <ESP8266WebServer.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
-#include "spiffs/spiffs.h"
+//#include "spiffs/spiffs.h"
 #include <FS.h>
 #include <ESP8266mDNS.h>
 #include "stm32ota.h"
@@ -111,9 +124,9 @@ const String STM32_CHIPNAME[47] = {
 const char* ssid = "your-wifi-ssid";
 const char* password = "your-wifi-password";
 
-IPAddress local_IP(192, 168, 0, 66);
-IPAddress gateway(192, 168, 0, 1);
-IPAddress subnet(255, 255, 255, 0);
+IPAddress local_IP(192, 168, 0, 66);      // change the IP to you want 
+IPAddress gateway(192, 168, 0, 1);       //change to  your WiFi router IP
+IPAddress subnet(255, 255, 255, 0);     // change to your WiFi subnet
 
 ESP8266WebServer server(80);
 const char* serverIndex = "<h1>Upload STM32 BinFile</h1><h2><br><br><form method='POST' action='/upload' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Upload'></form></h2>";
@@ -268,6 +281,9 @@ void setup(void)
   pinMode(BOOT0, OUTPUT);
   pinMode(NRST, OUTPUT);
   pinMode(LED, OUTPUT);
+  digitalWrite(NRST, LOW);
+  digitalWrite(LED, LOW);
+  delay(50);
   WiFi.mode(WIFI_STA);
   WiFi.config(local_IP, gateway, subnet);
   WiFi.begin(ssid, password);
@@ -276,86 +292,84 @@ void setup(void)
   WiFiConnect();
   // Port defaults to 8266
   ArduinoOTA.setPort(8266);
-    
   ArduinoOTA.onStart([]() {
     digitalWrite(LED, LOW);
     delay(500);
     digitalWrite(LED, HIGH);
-});
-ArduinoOTA.onEnd([]() {
-  for ( int i = 0; i < 3; i++) {
-    digitalWrite(LED, !digitalRead(LED));
-    delay(100);
-  }
-});
-ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-  if ((progress / (total / 100)) <= 99)  {
-    digitalWrite(LED, !digitalRead(LED));
-  }
-});
-ArduinoOTA.onError([](ota_error_t error) {
+  });
+  ArduinoOTA.onEnd([]() {
+    for ( int i = 0; i < 3; i++) {
+      digitalWrite(LED, !digitalRead(LED));
+      delay(100);
+    }
+  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    if ((progress / (total / 100)) <= 99)  {
+      digitalWrite(LED, !digitalRead(LED));
+    }
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+  digitalWrite(NRST, LOW);
+  digitalWrite(LED, LOW);
+  delay(50);
   ESP.restart();
-});
-ArduinoOTA.begin();
-server.on("/up", HTTP_GET, []() {
-  server.send(200, "text/html", makePage("Select file", serverIndex));
-});
-server.on("/list", HTTP_GET, handleListFiles);
-server.on("/programm", HTTP_GET, handleFlash);
-server.on("/run", HTTP_GET, []() {
-  String Runstate = "STM32 Restart and runing!<br><br>Click Mode switch to RunMode or FlashMode <br><br>Click Home return by Flash mode";
-  // stm32Run();
-  if (Runflag == 0) {
-    RunMode();
-    Runflag = 1;
-  }
-  else {
-    FlashMode();
-    // initflag = 0;
-    Runflag = 0;
-  }
-  server.send(200, "text/html", makePage("Run", "<h2>" + Runstate + "<br><br><a style=\"color:white\" href=\"/run\">1.Mode </a><br><br><a style=\"color:white\" href=\"/\">2.Home </a></h2>"));
-});
-server.on("/erase", HTTP_GET, []() {
-  if (stm32Erase() == STM32ACK)
-    stringtmp = "<h1>Erase OK</h1><h2><a style=\"color:white\" href=\"/list\">Return </a></h2>";
-  else if (stm32Erasen() == STM32ACK)
-    stringtmp = "<h1>Erase OK</h1><h2><a style=\"color:white\" href=\"/list\">Return </a></h2>";
-  else
-    stringtmp = "<h1>Erase failure</h1><h2><a style=\"color:white\" href=\"/list\">Return </a></h2>";
-  server.send(200, "text/html", makePage("Erase page", stringtmp));
-});
-server.on("/flash", HTTP_GET, []() {
-  stringtmp = "<h1>FLASH MENU</h1><h2><a style=\"color:white\" href=\"/programm\">Flash STM32</a><br><br><a style=\"color:white\" href=\"/erase\">Erase STM32</a><br><br><a style=\"color:white\" href=\"/run\">Run STM32</a><br><br><a style=\"color:white\" href=\"/list\">Return </a></h2>";
-  server.send(200, "text/html", makePage("Flash page", stringtmp));
-});
-server.on("/esp-ota", HTTP_GET, []() {
-  stringtmp = "<h1>Update ESP8266 </h1>";
-  server.send(200, "text/html", makePage("ESP-OTA-Mode", stringtmp));
-  ESP_OTA_Flag = 0;
-  delay(100);
-});
-server.on("/delete", HTTP_GET, handleFileDelete);
-server.onFileUpload(handleFileUpload);
-server.on("/upload", HTTP_POST, []() {
-  server.send(200, "text/html", makePage("FileList", "<h1> Uploaded OK </h1><br><br><h2><a style=\"color:white\" href=\"/list\">Return </a></h2>"));
-});
-server.on("/", HTTP_GET, []() {
-  if (Runflag == 1) {
-    FlashMode();
-    Runflag = 0;
-  }
-  //if (initflag == 0)
-  //{
-  Serial.write(STM32INIT);
-  delay(10);
-  if (Serial.available() > 0);
-  rdtmp = Serial.read();
-  if (rdtmp == STM32ACK)   {
-    //initflag = 1;
-    stringtmp = STM32_CHIPNAME[stm32GetId()];
-  }
-  else if (rdtmp == STM32NACK) {
+  });
+  MDNS.begin("stm32flash");
+  server.on("/up", HTTP_GET, []() {
+    server.send(200, "text/html", makePage("Select file", serverIndex));
+  });
+  server.on("/list", HTTP_GET, handleListFiles);
+  server.on("/programm", HTTP_GET, handleFlash);
+  server.on("/run", HTTP_GET, []() {
+    String Runstate = "STM32 Restart and runing!<br><br>Click Mode switch to RunMode or FlashMode <br><br>Click Home return by Flash mode";
+    // stm32Run();
+    if (Runflag == 0) {
+      RunMode();
+      Runflag = 1;
+    }
+    else {
+      FlashMode();
+      // initflag = 0;
+      Runflag = 0;
+    }
+    server.send(200, "text/html", makePage("Run", "<h2>" + Runstate + "<br><br><a style=\"color:white\" href=\"/run\">1.Mode </a><br><br><a style=\"color:white\" href=\"/\">2.Home </a></h2>"));
+  });
+  server.on("/erase", HTTP_GET, []() {
+    if (stm32Erase() == STM32ACK)
+      stringtmp = "<h1>Erase OK</h1><h2><a style=\"color:white\" href=\"/list\">Return </a></h2>";
+    else if (stm32Erasen() == STM32ACK)
+      stringtmp = "<h1>Erase OK</h1><h2><a style=\"color:white\" href=\"/list\">Return </a></h2>";
+    else
+      stringtmp = "<h1>Erase failure</h1><h2><a style=\"color:white\" href=\"/list\">Return </a></h2>";
+    server.send(200, "text/html", makePage("Erase page", stringtmp));
+  });
+  server.on("/flash", HTTP_GET, []() {
+    stringtmp = "<h1>FLASH MENU</h1><h2><a style=\"color:white\" href=\"/programm\">Flash STM32</a><br><br><a style=\"color:white\" href=\"/erase\">Erase STM32</a><br><br><a style=\"color:white\" href=\"/run\">Run STM32</a><br><br><a style=\"color:white\" href=\"/list\">Return </a></h2>";
+    server.send(200, "text/html", makePage("Flash page", stringtmp));
+  });
+  server.on("/esp-ota", HTTP_GET, []() {
+    stringtmp = "<h1>Update ESP8266 </h1>";
+    server.send(200, "text/html", makePage("ESP-OTA-Mode", stringtmp));
+    ArduinoOTA.begin();
+    ESP_OTA_Flag = 0;
+      digitalWrite(LED, 1);    
+    for ( int j = 0; j < 3; j++) {
+      digitalWrite(LED, !digitalRead(LED));
+      delay(100);
+    }
+  });
+  server.on("/delete", HTTP_GET, handleFileDelete);
+  server.onFileUpload(handleFileUpload);
+  server.on("/upload", HTTP_POST, []() {
+    server.send(200, "text/html", makePage("FileList", "<h1> Uploaded OK </h1><br><br><h2><a style=\"color:white\" href=\"/list\">Return </a></h2>"));
+  });
+  server.on("/", HTTP_GET, []() {
+    if (Runflag == 1) {
+      FlashMode();
+      Runflag = 0;
+    }
+    //if (initflag == 0)
+    //{
     Serial.write(STM32INIT);
     delay(10);
     if (Serial.available() > 0);
@@ -364,14 +378,23 @@ server.on("/", HTTP_GET, []() {
       //initflag = 1;
       stringtmp = STM32_CHIPNAME[stm32GetId()];
     }
-  }
-  else  {
-    stringtmp = "ERROR";
-  }
-  String starthtml = "<h1>STM32-OTA</h1><h2>Version 1.1 by <a style=\"color:white\" href=\"https://github.com/csnol/STM32-OTA\">CSNOL<br><br><a style=\"color:white\" href=\"/list\">List STM32 BinFile </a><br><br><a style=\"color:white\" href=\"/esp-ota\">Flash ESP8266 </a></h2>";
-  server.send(200, "text/html", makePage("Start Page", starthtml + "- Init MCU -<br> " + stringtmp));
-});
-server.begin();
+    else if (rdtmp == STM32NACK) {
+      Serial.write(STM32INIT);
+      delay(10);
+      if (Serial.available() > 0);
+      rdtmp = Serial.read();
+      if (rdtmp == STM32ACK)   {
+        //initflag = 1;
+        stringtmp = STM32_CHIPNAME[stm32GetId()];
+      }
+    }
+    else  {
+      stringtmp = "ERROR";
+    }
+    String starthtml = "<h1>STM32-OTA</h1><h2>Version 1.1 by <a style=\"color:white\" href=\"https://github.com/csnol/STM32-OTA\">CSNOL<br><br><a style=\"color:white\" href=\"/list\">List STM32 BinFile </a><br><br><a style=\"color:white\" href=\"/esp-ota\">Flash ESP8266 </a></h2>";
+    server.send(200, "text/html", makePage("Start Page", starthtml + "- Init MCU -<br> " + stringtmp));
+  });
+  server.begin();
 }
 
 void loop(void) {

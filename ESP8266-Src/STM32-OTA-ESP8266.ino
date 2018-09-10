@@ -36,7 +36,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-#include "spiffs/spiffs.h"
+//#include "spiffs/spiffs.h"         // delete for ESP8266 Arduino 2.4.2
 #include <FS.h>
 #include <ESP8266mDNS.h>
 #include "stm32ota.h"
