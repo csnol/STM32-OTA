@@ -1,5 +1,5 @@
 
-# STM32-OTA on Arduino IDE (for MACOS and Linux)
+# STM32-OTA on Arduino IDE (for MacOS and Linux)
 
 -----
 ### With a ESP8266, It can upload sketch to STM32 series MCU on Arduino IDE without any wires.
