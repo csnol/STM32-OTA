@@ -1,5 +1,5 @@
 
-# STM32-OTA on Arduino IDE 
+# STM32-OTA on Arduino IDE (for MACOS and Linux)
 
 -----
 ### With a ESP8266, It can upload sketch to STM32 series MCU on Arduino IDE without any wires.
@@ -92,6 +92,16 @@
 * Sameway to setup. but I haven't the ST official board. so can't test it.
 
 ### -> Now, you can OTA upload to STM32 MCU without any wires!
+
+-----
+
+# STM32-OTA on Arduino IDE (for Windows)
+
+### THANKS for [LEVKOVIGOR](https://github.com/levkovigor)
+
+* Please move to [levkovigor/STM32-OTA-ESP8266-for-windows](https://github.com/levkovigor/STM32-OTA-ESP8266-for-windows)
+
+* Use busybox tools for windows, really good Idea!
 
 -----
 ### BTW
